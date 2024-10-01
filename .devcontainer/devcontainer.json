@@ -1,0 +1,38 @@
+{
+    "name": "Laravel Permissions Example",
+    "dockerComposeFile": [
+        "../docker-compose.yml",
+        "docker-compose.yml"
+    ],
+    "service": "workspace",
+    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+    "runServices": [
+        "mysql",
+        "php-apache",
+        "workspace"
+    ],
+    // Configure tool-specific properties.
+    "customizations": {
+        // Configure properties specific to VS Code.
+        "vscode": {
+            // Set *default* container specific settings.json values on container create.
+            "settings": {
+                "php.executablePath": "/usr/local/bin/php",
+                "namespaceResolver.autoSort": true,
+                "phpunit.phpunit": "./code/vendor/bin/phpunit",
+                "php.format.codeStyle": "PSR-12",
+                "terminal.integrated.cwd": "./code",
+                "editor.formatOnSave": true
+            },
+            // Add the IDs of extensions you want installed when the container is created.
+            "extensions": [
+                "devsense.phptools-vscode",
+                "mehedidracula.php-namespace-resolver"
+            ]
+        }
+    },
+    // Use 'forwardPorts' to make a list of ports inside the container available locally.
+    // "forwardPorts": [],
+    // Use 'postCreateCommand' to run commands after the container is created.
+    "postCreateCommand": ".devcontainer/setup.sh"
+}

@@ -1,0 +1,55 @@
+version: '3.0'
+networks:
+  frontend:
+    driver: ${NETWORKS_DRIVER}
+  backend:
+    driver: ${NETWORKS_DRIVER}
+volumes:
+  mysql:
+    driver: ${VOLUMES_DRIVER}
+services:
+  php-apache:
+    networks:
+      - frontend
+      - backend
+    build:
+      context: ./docker/php-apache
+      args:
+        - TZ=${TIMEZONE}
+        - HTTPD_VERSION=${HTTPD_VERSION}
+        - ALPINE_VERSION=${ALPINE_VERSION}
+    image: ${DOCKER_REGISTRY}/${COMPOSE_PROJECT_NAME}_php-apache:0.0.1
+    ports:
+      - "${APACHE_PORT}:80"
+    volumes:
+      - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
+  mysql:
+    networks:
+      - backend
+    build:
+      context: ./docker/mysql
+      args:
+        - MYSQL_VERSION=${MYSQL_VERSION}
+        - TZ=${TIMEZONE}
+    image: ${DOCKER_REGISTRY}/${COMPOSE_PROJECT_NAME}_mysql:0.0.1
+    volumes:
+      - mysql:/var/lib/mysql
+    ports:
+      - "${MYSQL_PORT}:3306"
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+  workspace:
+    tty: true
+    networks:
+      - backend
+    build:
+      context: ./docker/workspace
+      args:
+        - FROM=${DOCKER_REGISTRY}/${COMPOSE_PROJECT_NAME}_php-apache:0.0.1
+        - COMPOSER_VERSION=${COMPOSER_VERSION}
+    image: ${DOCKER_REGISTRY}/${COMPOSE_PROJECT_NAME}_workspace:0.0.1
+    volumes:
+      - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
